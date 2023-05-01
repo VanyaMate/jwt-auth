@@ -3,18 +3,28 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
+const { connect } = require('mongoose');
+const router = require('./router/index');
 
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-const start = function () {
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use('/api', router);
+
+const start = async function () {
     try {
-        app.listen(PORT, () => console.log('Server started on', PORT));
+        await connect(process.env.DB_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then(() => console.log('[MongoDB] Connected'));
+        app.listen(PORT, () => console.log('[Server] Start on', PORT));
     }
     catch (e) {
-        console.log(`Server start error`, e);
+        console.log(`[Server] Error`, e);
     }
 }
 
